@@ -11,5 +11,5 @@ COPY . .
 
 # restore packages from renv.lock
 USER root
-RUN R -e "renv::restore()"
+RUN R -e "source('renv/activate.R'); renv::restore()"
 USER rstudio
