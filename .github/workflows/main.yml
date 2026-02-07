@@ -7,33 +7,27 @@ on:
       - 'Dockerfile'
       - 'renv.lock'
       - 'renv/**'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'Dockerfile'
-      - 'renv.lock'
-      - 'renv/**'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: lortizmo
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build the Docker image
         run: |
           docker build . \
             --file Dockerfile \
-            --tag lortizmo/dsci310-ia3--lortizmo--docker:latest
+            --tag lortizmo/dsci310-ia3-lortizmo-docker:latest
 
       - name: Push the Docker image
         run: |
-          docker push lortizmo/dsci310-ia3--lortizmo--docker:latest
+          docker push lortizmo/dsci310-ia3-lortizmo-docker:latest
