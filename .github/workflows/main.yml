@@ -1,16 +1,21 @@
-name: Publish Docker image
+name: Docker Image CI
 
 on:
-  workflow_dispatch:
   push:
+    branches: [ "main" ]
     paths:
       - 'Dockerfile'
       - 'renv.lock'
-      - '.github/workflows/docker-publish.yml'
+      - 'renv/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'Dockerfile'
+      - 'renv.lock'
+      - 'renv/**'
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,20 +28,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: lortizmo/dsci310-ia3--lortizmo--docker
-          tags: |
-            type=raw,value={{sha}}
-            type=raw,value=latest
+      - name: Build the Docker image
+        run: |
+          docker build . \
+            --file Dockerfile \
+            --tag lortizmo/dsci310-ia3--lortizmo--docker:latest
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: Push the Docker image
+        run: |
+          docker push lortizmo/dsci310-ia3--lortizmo--docker:latest
